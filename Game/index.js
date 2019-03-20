@@ -29,6 +29,12 @@ function proceedStart(state) {
         };
       }
       break;
+      case 2:
+      {
+        GameStart();
+      }
+      break;
+      
     default:
       break;
   }
