@@ -86,9 +86,9 @@ function GameLoop() {
          ||  backgroundPos >= 6500 || backgroundPos == 1  
       ) {
         console.log('WALK OR SPRINT',player.offsetLeft, backgroundPos );
-        // if (backgroundPos > 0) {
-        //   backgroundPos = 0;
-        // }
+        if (backgroundPos == 1) {
+          backgroundPos = 0;
+        }
         //Sprint stuff...
         if (isShfit) {
           player.style.left = player.offsetLeft + xvel * speed_mp + 'px';
