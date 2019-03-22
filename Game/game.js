@@ -13,10 +13,11 @@ function GameStart() {
   game = document.querySelector('.screen-game');
   player.elem = document.createElement('div');
   player.elem.className = 'player-idle';
-  player.elem.style.top = '100px';
+  player.elem.style.top = '700px';
   player.elem.style.left = '100px';
   game.appendChild(player.elem);
   SetupMovement();
+  SpawnMobs();
   StartTimer();
   setTimeout(() => {
     setInterval(GameLoop, 1000 / 60);
@@ -24,13 +25,13 @@ function GameStart() {
 }
 
 function Pause() {
-  let classStates = ['idle', 'mv', 'sprint'];
+  let classStates = ['idle', 'mv', 'sprint', 'dog'];
   if (!isPause) {
     //For every animating object ....
     {
       classStates.forEach(el => {
         let target = el + '-static';
-        player.elem.className = player.className.replace(el, target);
+        player.elem.className = player.elem.className.replace(el, target);
       });
     }
     isPause = true;
@@ -39,7 +40,7 @@ function Pause() {
     {
       classStates.forEach(el => {
         let target = el + '-static';
-        player.elem.className = player.className.replace(target, el);
+        player.elem.className = player.elem.className.replace(target, el);
       });
     }
 
@@ -100,14 +101,21 @@ function SetupMovement() {
         break;
 
       case 50:
-        Block(player);
+        if (attackCnt != 50) {
+          Block(player);
+          attackCnt = e.keyCode;
+        }
         break;
 
       default:
         break;
     }
   };
+
   document.onkeyup = e => {
+    if (isPause) {
+      return;
+    }
     player.elem.className =
       'player-idle ' + player.elem.className.split(' ')[1];
     xvel = 0;
@@ -127,52 +135,13 @@ function GameLoop() {
   updateMP(player.mp);
   updateHP(player.hp);
 
-  ///
-  ///PLAYER MOVEMENT
-  ///
+  //====================
+  //PLAYER MOVEMENT
+  //====================
+  MovePlayer(player, xvel);
+  //====================
+  //Enemies movement
+  //====================
 
-  if (xvel != 0) {
-    //Win in the end
-    if (player.elem.offsetLeft >= screen.width - player.elem.clientWidth * 2) {
-      // console.log('WIN', 'TIME', getTime(iters));
-      return;
-    }
-    //left border
-    if (player.elem.offsetLeft > 0 || xvel > 0) {
-      let speed_mp = DEBUG ? 10 : 2;
-      //if moved more than half of the screen wdith
-      //scroll the backgound
-      if (
-        player.elem.offsetLeft < screen.width / 2 - player.elem.clientWidth / 2 ||
-        backgroundPos >= 6500 ||
-        backgroundPos == 1
-      ) {
-        console.log('WALK OR SPRINT', player.elem.offsetLeft, backgroundPos);
-        if (backgroundPos == 1) {
-          backgroundPos = 0;
-        }
-        //Sprint stuff...
-        if (isShfit) {
-          player.elem.style.left =
-            player.elem.offsetLeft + xvel * speed_mp + 'px';
-        } else {
-          player.elem.style.left = player.elem.offsetLeft + xvel + 'px';
-        }
-      } else {
-        //Scroll da backround
-        backgroundPos += isShfit ? xvel * speed_mp : xvel;
-        if (backgroundPos < 0) {
-          backgroundPos = 1;
-        }
-        game.style.backgroundPositionX = -backgroundPos + 'px';
-      }
-
-      //animations
-      player.elem.className =
-        'player-mv ' + (xvel > 0 ? 'look-right' : 'look-left');
-      if (isShfit) {
-        player.elem.className = player.elem.className.replace('mv', 'sprint');
-      }
-    }
-  }
+  MobsMove(player);
 }

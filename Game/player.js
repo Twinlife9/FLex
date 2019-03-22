@@ -1,3 +1,54 @@
+function MovePlayer(player, xvel){
+  
+  if (xvel != 0) {
+    //Win in the end
+    if (player.elem.offsetLeft >= screen.width - player.elem.clientWidth * 2) {
+      // console.log('WIN', 'TIME', getTime(iters));
+      return;
+    }
+    //left border
+    if (player.elem.offsetLeft > 0 || xvel > 0) {
+      let speed_mp = DEBUG ? 10 : 2;
+      //if moved more than half of the screen wdith
+      //scroll the backgound
+      if (
+        player.elem.offsetLeft <
+          screen.width / 2 - player.elem.clientWidth / 2 ||
+        backgroundPos >= 6500 ||
+        backgroundPos == 1
+      ) {
+        console.log('WALK OR SPRINT', player.elem.offsetLeft, backgroundPos);
+        if (backgroundPos == 1) {
+          backgroundPos = 0;
+        }
+        //Sprint stuff...
+        if (isShfit) {
+          player.elem.style.left =
+            player.elem.offsetLeft + xvel * speed_mp + 'px';
+        } else {
+          player.elem.style.left = player.elem.offsetLeft + xvel + 'px';
+        }
+      } else {
+        //Scroll da backround
+        backgroundPos += isShfit ? xvel * speed_mp : xvel;
+        if (backgroundPos < 0) {
+          backgroundPos = 1;
+        }
+        game.style.backgroundPositionX = -backgroundPos + 'px';
+      }
+
+      //animations
+      player.elem.className =
+        'player-mv ' + (xvel > 0 ? 'look-right' : 'look-left');
+      if (isShfit) {
+        player.elem.className = player.elem.className.replace('mv', 'sprint');
+      }
+    }
+  }
+
+}
+
+
 function updateBar(polygon, textValue, pp) {
   textValue.innerHTML = pp;
   if (polygon.className == 'panel-mp') {
@@ -29,14 +80,18 @@ function updateMP(mp) {
 }
 
 function Attack1(player) {
-  player.elem.className = 'player-attack-one-one';
+  player.elem.className = 'player-attack-one-one ' + player.elem.className.split(' ')[1];
 }
 
 
 function Attack1loop(player) {
-  player.elem.className = 'player-attack-one-loop';
+  player.elem.className = 'player-attack-one-loop '+  player.elem.className.split(' ')[1];
 }
 
 function Block(player) {
-  player.elem.className = 'player-block';
+  if (player.mp < 5) {
+    return;
+  }
+  player.elem.className = 'player-block '+ player.elem.className.split(' ')[1];
+  player.mp -= 5;
 }
