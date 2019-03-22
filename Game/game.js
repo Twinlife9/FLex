@@ -6,6 +6,7 @@ let player = {
   hp: 100,
   mp: 100,
   elem: 0,
+  isBlocking: false
 };
 
 let game = 0;
@@ -107,6 +108,10 @@ function SetupMovement() {
         }
         break;
 
+        case 80:
+          Die(player);
+
+          break;
       default:
         break;
     }
@@ -119,6 +124,7 @@ function SetupMovement() {
     player.elem.className =
       'player-idle ' + player.elem.className.split(' ')[1];
     xvel = 0;
+    player.isBlocking = false;
     attackCnt = 0;
   };
 }

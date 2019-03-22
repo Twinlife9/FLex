@@ -1,5 +1,4 @@
-function MovePlayer(player, xvel){
-  
+function MovePlayer(player, xvel) {
   if (xvel != 0) {
     //Win in the end
     if (player.elem.offsetLeft >= screen.width - player.elem.clientWidth * 2) {
@@ -45,9 +44,7 @@ function MovePlayer(player, xvel){
       }
     }
   }
-
 }
-
 
 function updateBar(polygon, textValue, pp) {
   textValue.innerHTML = pp;
@@ -68,6 +65,9 @@ function updateBar(polygon, textValue, pp) {
 }
 
 function updateHP(hp) {
+  if (hp == 0) {
+    Die(player);
+  }
   let polygon = document.querySelector('.panel-xp');
   let textValue = document.querySelector('.panel-xp > div > span');
   updateBar(polygon, textValue, hp);
@@ -80,18 +80,31 @@ function updateMP(mp) {
 }
 
 function Attack1(player) {
-  player.elem.className = 'player-attack-one-one ' + player.elem.className.split(' ')[1];
+  player.elem.className =
+    'player-attack-one-one ' + player.elem.className.split(' ')[1];
 }
-
 
 function Attack1loop(player) {
-  player.elem.className = 'player-attack-one-loop '+  player.elem.className.split(' ')[1];
+  player.elem.className =
+    'player-attack-one-loop ' + player.elem.className.split(' ')[1];
 }
 
+let startHp = 0;
+let once = false;
 function Block(player) {
   if (player.mp < 5) {
     return;
   }
-  player.elem.className = 'player-block '+ player.elem.className.split(' ')[1];
+
+  // if (!once) {
+  player.isBlocking = true;
   player.mp -= 5;
+  once = true;
+  // }
+
+  player.elem.className = 'player-block ' + player.elem.className.split(' ')[1];
+}
+
+function Die(player) {
+  player.elem.className = 'player-die ' + player.elem.className.split(' ')[1];
 }
