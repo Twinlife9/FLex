@@ -84,14 +84,18 @@ function Attack1(player) {
     'player-attack-one-one ' + player.elem.className.split(' ')[1];
   // let idx = parseInt(player.elem.nextSibling.id);
   // console.log(idx, dogs[idx], dogs);
-  let  runOnece = true;
-  dogs.forEach(dog => {
+  let runOnece = true;
+  mobs.forEach(mob => {
     if (
-      !(dog.elem.offsetLeft > player.elem.offsetLeft + player.elem.clientWidth) &&
-      !(dog.elem.offsetLeft < player.elem.offsetLeft - dog.elem.clientWidth) && runOnece
+      !(
+        mob.elem.offsetLeft >
+        player.elem.offsetLeft + player.elem.clientWidth
+      ) &&
+      !(mob.elem.offsetLeft < player.elem.offsetLeft - mob.elem.clientWidth) &&
+      runOnece
     ) {
       setTimeout(() => {
-        dog.hp -= 15;
+        mob.hp -= 15;
       }, 1000);
       runOnece = false;
     }
@@ -110,13 +114,39 @@ function Block(player) {
     return;
   }
 
-  // if (!once) {
   player.isBlocking = true;
   player.mp -= 5;
-  once = true;
-  // }
 
   player.elem.className = 'player-block ' + player.elem.className.split(' ')[1];
+}
+
+function AttackAoe(player) {
+  let aoeDispaly = document.createElement('div');
+  aoeDispaly.className = 'player-aoe';
+  let rot = player.elem.className.split(' ')[1] == 'look-left' ? -1.2 : 1;
+
+  aoeDispaly.style.left =
+    player.elem.offsetLeft + rot * player.elem.clientWidth + 'px';
+  aoeDispaly.style.top = '700px';
+  game.appendChild(aoeDispaly);
+
+
+  setTimeout(() => {
+    mobs.forEach(mob => {
+      if (
+        mob.elem.offsetLeft + mob.elem.clientWidth <= aoeDispaly.offsetLeft + aoeDispaly.clientWidth &&
+        mob.elem.offsetLeft <= aoeDispaly.offsetLeft + aoeDispaly.clientWidth
+      ) {
+        mob.hp -= 100;
+
+      }
+    });
+    aoeDispaly.style.transition = 'all 0.5s';
+    aoeDispaly.style.opacity = '0';
+    setTimeout(() => {
+      aoeDispaly.remove();
+    }, 500);
+  }, 2000);
 }
 
 function Die(player) {

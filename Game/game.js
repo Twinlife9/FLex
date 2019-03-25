@@ -9,7 +9,9 @@ let player = {
   isBlocking: false
 };
 
+let score = 0;
 let game = 0;
+
 function GameStart() {
   game = document.querySelector('.screen-game');
   player.elem = document.createElement('div');
@@ -48,6 +50,11 @@ function Pause() {
     isPause = false;
   }
 }
+function UpdateScore(pts) {
+  score += pts;
+  let scoreCounter = document.querySelector('.kills');
+  scoreCounter.innerHTML = `Killed: ${score}`;
+}
 
 function getTime(start) {
   let date = new Date(start * 1000);
@@ -78,7 +85,7 @@ let isShfit = false;
 let attackCnt = 0;
 function SetupMovement() {
   document.onkeydown = e => {
-    console.log(e);
+    // console.log(e);
     isShfit = e.shiftKey;
     switch (e.keyCode) {
       case 27:
@@ -108,9 +115,9 @@ function SetupMovement() {
         }
         break;
 
-        case 80:
-          Die(player);
-
+        case 52:
+        AttackAoe(player);
+        //Die
           break;
       default:
         break;
