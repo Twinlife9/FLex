@@ -16,7 +16,7 @@ function MovePlayer(player, xvel) {
         backgroundPos >= 6500 ||
         backgroundPos == 1
       ) {
-        console.log('WALK OR SPRINT', player.elem.offsetLeft, backgroundPos);
+        // console.log('WALK OR SPRINT', player.elem.offsetLeft, backgroundPos);
         if (backgroundPos == 1) {
           backgroundPos = 0;
         }
@@ -82,6 +82,20 @@ function updateMP(mp) {
 function Attack1(player) {
   player.elem.className =
     'player-attack-one-one ' + player.elem.className.split(' ')[1];
+  // let idx = parseInt(player.elem.nextSibling.id);
+  // console.log(idx, dogs[idx], dogs);
+  let  runOnece = true;
+  dogs.forEach(dog => {
+    if (
+      !(dog.elem.offsetLeft > player.elem.offsetLeft + player.elem.clientWidth) &&
+      !(dog.elem.offsetLeft < player.elem.offsetLeft - dog.elem.clientWidth) && runOnece
+    ) {
+      setTimeout(() => {
+        dog.hp -= 15;
+      }, 1000);
+      runOnece = false;
+    }
+  });
 }
 
 function Attack1loop(player) {
