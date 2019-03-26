@@ -3,6 +3,7 @@ function MovePlayer(player, xvel) {
     //Win in the end
     if (player.elem.offsetLeft >= screen.width - player.elem.clientWidth * 2) {
       // console.log('WIN', 'TIME', getTime(iters));
+      Pause();
       return;
     }
     //left border
@@ -81,32 +82,26 @@ function updateMP(mp) {
 
 function Attack1(player) {
   player.elem.className =
-    'player-attack-one-one ' + player.elem.className.split(' ')[1];
+    'player-attack-one-loop ' + player.elem.className.split(' ')[1];
   // let idx = parseInt(player.elem.nextSibling.id);
   // console.log(idx, dogs[idx], dogs);
-  let runOnece = true;
+  
   mobs.forEach(mob => {
     if (
       !(
         mob.elem.offsetLeft >
         player.elem.offsetLeft + player.elem.clientWidth
       ) &&
-      !(mob.elem.offsetLeft < player.elem.offsetLeft - mob.elem.clientWidth) &&
-      runOnece
+      !(mob.elem.offsetLeft < player.elem.offsetLeft - mob.elem.clientWidth)
     ) {
       setTimeout(() => {
         mob.hp -= 15;
-      }, 1000);
-      runOnece = false;
+      }, 500);
     }
   });
 }
 
-function Attack1loop(player) {
-  player.elem.className =
-    'player-attack-one-loop ' + player.elem.className.split(' ')[1];
-}
-
+  
 let startHp = 0;
 let once = false;
 function Block(player) {
@@ -118,6 +113,9 @@ function Block(player) {
   player.mp -= 5;
 
   player.elem.className = 'player-block ' + player.elem.className.split(' ')[1];
+  setTimeout(() => {
+    player.elem.className = player.elem.className.replace('block ','blocking ')
+  }, 460);
 }
 
 function AttackAoe(player) {
@@ -137,8 +135,7 @@ function AttackAoe(player) {
         mob.elem.offsetLeft + mob.elem.clientWidth <= aoeDispaly.offsetLeft + aoeDispaly.clientWidth &&
         mob.elem.offsetLeft <= aoeDispaly.offsetLeft + aoeDispaly.clientWidth
       ) {
-        mob.hp -= 100;
-
+        mob.hp -= 100;  
       }
     });
     aoeDispaly.style.transition = 'all 0.5s';

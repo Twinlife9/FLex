@@ -6,7 +6,7 @@ let player = {
   hp: 100,
   mp: 100,
   elem: 0,
-  isBlocking: false
+  isBlocking: false,
 };
 
 let score = 0;
@@ -28,13 +28,17 @@ function GameStart() {
 }
 
 function Pause() {
-  let classStates = ['idle', 'mv', 'sprint', 'dog'];
+  let classStates = ['idle', 'mv', 'sprint', 'dog', 'run'];
   if (!isPause) {
     //For every animating object ....
     {
       classStates.forEach(el => {
         let target = el + '-static';
         player.elem.className = player.elem.className.replace(el, target);
+        mobs.forEach(mob => {
+          console.log(mob, el, target);
+          mob.elem.className = mob.elem.className.replace(el, target);
+        });
       });
     }
     isPause = true;
@@ -44,6 +48,10 @@ function Pause() {
       classStates.forEach(el => {
         let target = el + '-static';
         player.elem.className = player.elem.className.replace(target, el);
+        mobs.forEach(mob => {
+          console.log(mob, el, target);
+          mob.elem.className = mob.elem.className.replace(target, el);
+        });
       });
     }
 
@@ -87,6 +95,10 @@ function SetupMovement() {
   document.onkeydown = e => {
     // console.log(e);
     isShfit = e.shiftKey;
+    if (isPause && e.keyCode != 27) {
+      return;
+    }
+
     switch (e.keyCode) {
       case 27:
         Pause();
@@ -100,12 +112,7 @@ function SetupMovement() {
         break;
       //Attacks
       case 49:
-        if (attackCnt < 1) {
-          Attack1(player);
-        } else {
-          Attack1loop(player);
-        }
-        attackCnt++;
+        Attack1(player);
         break;
 
       case 50:
@@ -115,10 +122,10 @@ function SetupMovement() {
         }
         break;
 
-        case 52:
+      case 52:
         AttackAoe(player);
-        //Die
-          break;
+        break;
+
       default:
         break;
     }
@@ -126,6 +133,12 @@ function SetupMovement() {
 
   document.onkeyup = e => {
     if (isPause) {
+      return;
+    }
+    if (e.keyCode == 49) {
+      setTimeout(() => {
+        document.onkeyup({ ...e, keyCode: 777 });
+      }, 700);
       return;
     }
     player.elem.className =
@@ -139,22 +152,17 @@ function SetupMovement() {
 let backgroundPos = 0;
 
 function GameLoop() {
-  //Pause thingy
   if (isPause) {
     return;
   }
 
-  //Keeping track of hp and mp values
   updateMP(player.mp);
   updateHP(player.hp);
 
-  //====================
-  //PLAYER MOVEMENT
-  //====================
   MovePlayer(player, xvel);
-  //====================
-  //Enemies movement
-  //====================
-
   MobsMove(player);
+
+  if (mobs.length === 0) {
+    SpawnMobs();
+  }
 }
