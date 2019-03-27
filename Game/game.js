@@ -28,7 +28,7 @@ function GameStart() {
 }
 
 function Pause() {
-  let classStates = ['idle', 'mv', 'sprint', 'dog', 'run'];
+  let classStates = ['idle', 'mv', 'sprint', 'dog', 'run', 'attack'];
   if (!isPause) {
     //For every animating object ....
     {
@@ -36,7 +36,7 @@ function Pause() {
         let target = el + '-static';
         player.elem.className = player.elem.className.replace(el, target);
         mobs.forEach(mob => {
-          console.log(mob, el, target);
+          // console.log(mob, el, target);
           mob.elem.className = mob.elem.className.replace(el, target);
         });
       });
@@ -49,7 +49,7 @@ function Pause() {
         let target = el + '-static';
         player.elem.className = player.elem.className.replace(target, el);
         mobs.forEach(mob => {
-          console.log(mob, el, target);
+          // console.log(mob, el, target);
           mob.elem.className = mob.elem.className.replace(target, el);
         });
       });
@@ -85,6 +85,21 @@ function StartTimer() {
     //HP & MP REGEN
     player.mp = Math.min(Math.max(player.mp + 5, 0), 100);
     player.hp = Math.min(Math.max(player.hp + 2, 0), 100);
+    //
+    if (mobs.length === 0) {
+      SpawnMobs();
+    }
+    if (mobs.length < 9) {
+      let hits = 0;
+      mobs.forEach((mob)=>{
+        if (mob.elem.offsetLeft < 0 || mob.elem.offsetLeft > screen.width) {
+          hits++;
+        }
+      });
+      if (hits >= 3) {
+        SpawnMobs();
+      }
+    }
   }, 1000);
 }
 
@@ -120,6 +135,10 @@ function SetupMovement() {
           Block(player);
           attackCnt = e.keyCode;
         }
+        break;
+
+      case 51:
+        AttackShahslik(player);
         break;
 
       case 52:
@@ -162,7 +181,6 @@ function GameLoop() {
   MovePlayer(player, xvel);
   MobsMove(player);
 
-  if (mobs.length === 0) {
-    SpawnMobs();
-  }
+  ShaslikUpdate()
+  
 }

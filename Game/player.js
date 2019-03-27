@@ -35,6 +35,10 @@ function MovePlayer(player, xvel) {
           backgroundPos = 1;
         }
         game.style.backgroundPositionX = -backgroundPos + 'px';
+        mobs.forEach(mob => {
+          mob.elem.style.left =
+            mob.elem.offsetLeft - (isShfit ? xvel * speed_mp : xvel) + 'px';
+        });
       }
 
       //animations
@@ -85,7 +89,7 @@ function Attack1(player) {
     'player-attack-one-loop ' + player.elem.className.split(' ')[1];
   // let idx = parseInt(player.elem.nextSibling.id);
   // console.log(idx, dogs[idx], dogs);
-  
+
   mobs.forEach(mob => {
     if (
       !(
@@ -101,7 +105,6 @@ function Attack1(player) {
   });
 }
 
-  
 let startHp = 0;
 let once = false;
 function Block(player) {
@@ -114,11 +117,20 @@ function Block(player) {
 
   player.elem.className = 'player-block ' + player.elem.className.split(' ')[1];
   setTimeout(() => {
-    player.elem.className = player.elem.className.replace('block ','blocking ')
+    player.elem.className = player.elem.className.replace(
+      'block ',
+      'blocking '
+    );
   }, 460);
 }
 
+let aoeCooldown = false;
 function AttackAoe(player) {
+  if (aoeCooldown) {
+    return;
+  }
+
+  player.mp -= 30;
   let aoeDispaly = document.createElement('div');
   aoeDispaly.className = 'player-aoe';
   let rot = player.elem.className.split(' ')[1] == 'look-left' ? -1.2 : 1;
@@ -128,14 +140,14 @@ function AttackAoe(player) {
   aoeDispaly.style.top = '700px';
   game.appendChild(aoeDispaly);
 
-
   setTimeout(() => {
     mobs.forEach(mob => {
       if (
-        mob.elem.offsetLeft + mob.elem.clientWidth <= aoeDispaly.offsetLeft + aoeDispaly.clientWidth &&
+        mob.elem.offsetLeft + mob.elem.clientWidth <=
+          aoeDispaly.offsetLeft + aoeDispaly.clientWidth &&
         mob.elem.offsetLeft <= aoeDispaly.offsetLeft + aoeDispaly.clientWidth
       ) {
-        mob.hp -= 100;  
+        mob.hp -= 100;
       }
     });
     aoeDispaly.style.transition = 'all 0.5s';
@@ -144,6 +156,81 @@ function AttackAoe(player) {
       aoeDispaly.remove();
     }, 500);
   }, 2000);
+  aoeCooldown = true;
+  setTimeout(() => {
+    aoeCooldown = false;
+  }, 15000);
+}
+let shashlik_obj = { shashlik: undefined, rot: 1 };
+let shashlikCooldown = false;
+function AttackShahslik(player) {
+  if (shashlikCooldown) {
+    return;
+  }
+  //player.mp -= 10;
+  if (shashlik_obj.shashlik) {
+    shashlik_obj.shashlik.remove();
+  }
+  pMob = 0;
+  let shashlik = document.createElement('div');
+  shashlik.className = 'player-shashlik ' + player.elem.className.split(' ')[1];
+  let rot = player.elem.className.split(' ')[1] == 'look-left' ? -1 : 1;
+
+  shashlik.style.left =
+    player.elem.offsetLeft + rot * player.elem.clientWidth + 'px';
+  shashlik.style.top = '750px';
+  shashlik_obj.shashlik = shashlik;
+  shashlik_obj.rot = rot;
+  game.appendChild(shashlik);
+
+/*  shashlikCooldown = true;
+  setTimeout(() => {
+    shashlikCooldown = false;
+  }, 3000);*/
+}
+let pMob = 0;
+let frame = 0;
+function ShaslikUpdate() {
+  let shashlik = shashlik_obj.shashlik;
+  let rot = shashlik_obj.rot;
+  if (typeof shashlik === 'undefined') {
+    return;
+  }
+  if (
+    shashlik.offsetLeft >= screen.width ||
+    shashlik.offsetLeft < 0 - shashlik.clientWidth
+  ) {
+    shashlik_obj.shashlik.remove();
+    shashlik_obj.shashlik = undefined;
+    return;
+  }
+  let mobIdx = frame % mobs.length;
+  let mob = mobs[mobIdx];
+  if (!mob) {
+    return;
+  }
+  shashlik.style.left = shashlik.offsetLeft + rot * 20 + 'px';
+  // mobs.forEach(mob => {
+    if (mob == pMob) {
+      return;
+    }
+    if (
+      rot > 0 &&
+      shashlik.offsetLeft > mob.elem.offsetLeft + mob.elem.clientWidth
+    ) {
+      mob.hp -= 40;
+      pMob = mob;
+    } else if (
+      rot < 0 &&
+      shashlik.offsetLeft < mob.elem.offsetLeft
+    ) {
+      mob.hp -= 40;
+      pMob = mob;
+    }
+
+  mobs[mobIdx] = mob;
+  // });
+  frame++
 }
 
 function Die(player) {

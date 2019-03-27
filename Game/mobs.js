@@ -13,9 +13,32 @@ function MobAttack(mob, player) {
   }, 1000);
 }
 function ElfAttack(mob, player) {
-  
+  if (mob.doDmg) {
     mob.elem.className = 'elf-attack ' + mob.elem.className.split(' ')[1];
     MobAttack(mob, player);
+  }
+}
+
+function GreenchAttack(mob, player) {
+  if (mob.doDmg) {
+    mob.elem.className = 'greench-attack ' + mob.elem.className.split(' ')[1];
+    MobAttack(mob, player);
+  }
+}
+function MobDie(mob, idx) {
+  mob.elem.remove();
+  mobs.splice(idx, 1);
+  UpdateScore(1);
+}
+
+function ElfDie(mob, idx) {
+  // mobs.splice(idx, 1);
+  // mob.elem.className = 'elf-die ' + mob.elem.className.split(' ')[1];
+  // setTimeout(() => {
+  // mob.elem.remove();
+  // UpdateScore(1);
+  MobDie(mob, idx);
+  // }, 1000);
 }
 
 function SpawnMobs() {
@@ -26,21 +49,34 @@ function SpawnMobs() {
     elem: undefined,
     class: 'dog',
     attack: MobAttack,
+    die: MobDie,
     doDmg: false,
   };
 
   let elf = {
     dmg: 5,
     hp: 30,
-    ms: 2,
+    ms: 2.5,
     elem: undefined,
     class: 'elf-run',
     attack: ElfAttack,
+    die: ElfDie,
+    doDmg: false,
+  };
+  
+  let greench = {
+    dmg: 10,
+    hp: 60,
+    ms: 1.9,
+    elem: undefined,
+    class: 'greench-run',
+    attack: GreenchAttack,
+    die: ElfDie,
     doDmg: false,
   };
 
-  let mobtypes = [dog, elf];
-  for (let i = 0; i < 2; i++) {
+  let mobtypes = [dog, elf, greench];
+  for (let i = 0; i < 3; i++) {
     let mob = mobtypes[i];
     mob.elem = document.createElement('div');
     mob.elem.className = mob.class;
@@ -71,7 +107,6 @@ function SpawnMobs() {
 
 function MobsMove(player) {
   mobs.forEach((mob, idx) => {
-    let bgpos = parseInt(game.style.backgroundPositionX.replace('px',''));
     if (
       mob.elem.offsetLeft >
       player.elem.offsetLeft + player.elem.clientWidth
@@ -88,17 +123,15 @@ function MobsMove(player) {
       mob.elem.style.left = mob.elem.offsetLeft + mob.ms + 'px';
       mob.doDmg = false;
     } else if (!mob.doDmg) {
-      mob.attack(mob, player);
       mob.doDmg = true;
+      mob.attack(mob, player);
     }
 
     let precentHp = (mob.hp / mob.maxHp) * 100;
     mob.hpBar.style.width = `${precentHp}%`;
 
     if (mob.hp <= 0) {
-      mob.elem.remove();
-      mobs.splice(idx, 1);
-      UpdateScore(1);
+      mob.die(mob, idx);
     }
   });
 }
