@@ -1,5 +1,5 @@
 /////
-const DEBUG = true;
+const DEBUG = false;
 
 let isPause = false;
 let player = {
@@ -86,9 +86,7 @@ function StartTimer() {
     player.mp = Math.min(Math.max(player.mp + 5, 0), 100);
     player.hp = Math.min(Math.max(player.hp + 2, 0), 100);
     //
-    if (mobs.length === 0) {
-      SpawnMobs();
-    }
+
     if (mobs.length < 9) {
       let hits = 0;
       mobs.forEach(mob => {
@@ -101,6 +99,38 @@ function StartTimer() {
       }
     }
   }, 1000);
+}
+
+function forEachGif(callbackFn) {
+  let sheetList = document.styleSheets;
+  for (let i = 0; i < sheetList.length; i++) {
+    const el = sheetList[i];
+    for (let j = 0; j < el.rules.length; j++) {
+      const elem = el.rules[j];
+      // console.log(elem);
+      callbackFn(elem);
+    }
+  }
+}
+
+function ResetAnims() {
+  let values = {};
+  forEachGif(el => {
+    if (el.style.backgroundImage.indexOf('.gif') > 0) {
+      let key = el.selectorText;
+      values[key] = el.style.backgroundImage; 
+      el.style.backgroundImage = '';
+    }
+  });
+
+  setTimeout(() => {
+    forEachGif(el => {
+      let key = el.selectorText;
+      if (values[key]) {
+        el.style.backgroundImage = values[key];
+      }
+    });
+  }, 1);
 }
 
 let xvel = 0;
@@ -131,9 +161,7 @@ function SetupMovement() {
         break;
 
       case 50:
-      
         if (attackCnt != 50) {
-
           Block(player);
           attackCnt = e.keyCode;
         }
@@ -172,6 +200,7 @@ function SetupMovement() {
     xvel = 0;
     player.isBlocking = false;
     attackCnt = 0;
+    ResetAnims();
   };
 }
 

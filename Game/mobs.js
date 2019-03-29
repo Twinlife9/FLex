@@ -30,6 +30,7 @@ function MobDie(mob) {
   mob.elem.remove();
   mobs.splice(mobs.indexOf(mob), 1);
   UpdateScore(1);
+  ResetAnims();
 }
 
 function ElfDie(mob) {
@@ -64,7 +65,6 @@ function GreenchDie(mob) {
     mob.elem.style.opacity = '0';
     setTimeout(() => {
       MobDie(mob);
-      console.log('removing el', mob, idx);
     }, 500);
   }, 2000);
 }
