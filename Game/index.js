@@ -12,7 +12,7 @@ function proceedStart(state) {
           const fd = new FormData(form);
           const uname = fd.get('username');
           if (uname != '') {
-            console.log('succes');
+            // console.log('succes');
             field_uname.innerText = uname;
             start.style.display = 'none';
             proceedStart(1);

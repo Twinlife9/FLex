@@ -9,7 +9,8 @@ function MobAttack(mob, player) {
     }
     //  console.log(mob);
 
-    mob.attack(mob, player);
+    // mob.attack(mob, player);
+    MobAttack(mob, player);
   }, 1000);
 }
 function ElfAttack(mob, player) {
@@ -25,20 +26,47 @@ function GreenchAttack(mob, player) {
     MobAttack(mob, player);
   }
 }
-function MobDie(mob, idx) {
+function MobDie(mob) {
   mob.elem.remove();
-  mobs.splice(idx, 1);
+  mobs.splice(mobs.indexOf(mob), 1);
   UpdateScore(1);
 }
 
-function ElfDie(mob, idx) {
+function ElfDie(mob) {
   // mobs.splice(idx, 1);
-  // mob.elem.className = 'elf-die ' + mob.elem.className.split(' ')[1];
-  // setTimeout(() => {
-  // mob.elem.remove();
-  // UpdateScore(1);
-  MobDie(mob, idx);
-  // }, 1000);
+  if (mob.dying) {
+    return;
+  }
+
+  mob.dying = true;
+  mob.elem.className = 'elf-die ' + mob.elem.className.split(' ')[1];
+  mob.hpBar.remove();
+  setTimeout(() => {
+    mob.elem.style.transition = 'all 0.5s';
+    mob.elem.style.opacity = '0';
+    setTimeout(() => {
+      MobDie(mob);
+    }, 500);
+  }, 2000);
+}
+
+function GreenchDie(mob) {
+  // mobs.splice(idx, 1);
+  if (mob.dying) {
+    return;
+  }
+
+  mob.dying = true;
+  mob.elem.className = 'greench-die ' + mob.elem.className.split(' ')[1];
+  mob.hpBar.remove();
+  setTimeout(() => {
+    mob.elem.style.transition = 'all 0.5s';
+    mob.elem.style.opacity = '0';
+    setTimeout(() => {
+      MobDie(mob);
+      console.log('removing el', mob, idx);
+    }, 500);
+  }, 2000);
 }
 
 function SpawnMobs() {
@@ -63,7 +91,7 @@ function SpawnMobs() {
     die: ElfDie,
     doDmg: false,
   };
-  
+
   let greench = {
     dmg: 10,
     hp: 60,
@@ -71,7 +99,7 @@ function SpawnMobs() {
     elem: undefined,
     class: 'greench-run',
     attack: GreenchAttack,
-    die: ElfDie,
+    die: GreenchDie,
     doDmg: false,
   };
 
@@ -99,14 +127,17 @@ function SpawnMobs() {
 
     mob.hpBar = hpBar;
     mob.elem.appendChild(hpBar);
-
+    mob.hitted = true;
     mobs.push(mob);
     game.appendChild(mob.elem);
   }
 }
 
 function MobsMove(player) {
-  mobs.forEach((mob, idx) => {
+  mobs.forEach((mob) => {
+    if (mob.dying) {
+      return;
+    }
     if (
       mob.elem.offsetLeft >
       player.elem.offsetLeft + player.elem.clientWidth
@@ -131,7 +162,7 @@ function MobsMove(player) {
     mob.hpBar.style.width = `${precentHp}%`;
 
     if (mob.hp <= 0) {
-      mob.die(mob, idx);
+      mob.die(mob);
     }
   });
 }

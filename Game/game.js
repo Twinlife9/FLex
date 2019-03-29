@@ -28,7 +28,7 @@ function GameStart() {
 }
 
 function Pause() {
-  let classStates = ['idle', 'mv', 'sprint', 'dog', 'run', 'attack'];
+  let classStates = ['idle', 'mv', 'sprint', 'dog', 'run', 'attack', 'die'];
   if (!isPause) {
     //For every animating object ....
     {
@@ -91,7 +91,7 @@ function StartTimer() {
     }
     if (mobs.length < 9) {
       let hits = 0;
-      mobs.forEach((mob)=>{
+      mobs.forEach(mob => {
         if (mob.elem.offsetLeft < 0 || mob.elem.offsetLeft > screen.width) {
           hits++;
         }
@@ -131,18 +131,25 @@ function SetupMovement() {
         break;
 
       case 50:
+      
         if (attackCnt != 50) {
+
           Block(player);
           attackCnt = e.keyCode;
         }
         break;
 
       case 51:
-        AttackShahslik(player);
+        if (player.mp > 10) {
+          AttackShashlik(player);
+        }
+
         break;
 
       case 52:
-        AttackAoe(player);
+        if (player.mp > 30) {
+          AttackAoe(player);
+        }
         break;
 
       default:
@@ -181,6 +188,9 @@ function GameLoop() {
   MovePlayer(player, xvel);
   MobsMove(player);
 
-  ShaslikUpdate()
-  
+  ShaslikUpdate();
+
+  if (mobs.length === 0) {
+    SpawnMobs();
+  }
 }

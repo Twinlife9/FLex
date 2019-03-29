@@ -130,6 +130,10 @@ function AttackAoe(player) {
     return;
   }
 
+  if (player.mp < 30) {
+    return;
+  }
+
   player.mp -= 30;
   let aoeDispaly = document.createElement('div');
   aoeDispaly.className = 'player-aoe';
@@ -161,76 +165,86 @@ function AttackAoe(player) {
     aoeCooldown = false;
   }, 15000);
 }
-let shashlik_obj = { shashlik: undefined, rot: 1 };
+
+let shashlik = { block: -1, rot: 0, slength: -1 };
 let shashlikCooldown = false;
-function AttackShahslik(player) {
+
+function AttackShashlik(player) {
   if (shashlikCooldown) {
     return;
   }
-  //player.mp -= 10;
-  if (shashlik_obj.shashlik) {
-    shashlik_obj.shashlik.remove();
+
+  if (player.mp < 30) {
+    return;
   }
-  pMob = 0;
-  let shashlik = document.createElement('div');
-  shashlik.className = 'player-shashlik ' + player.elem.className.split(' ')[1];
+
+  mobs.forEach((mob)=>{
+    mob.hitted = false;
+  })
+  player.mp -= 10;
+  if (typeof shashlik.block === 'object') {
+    shashlik.block.remove();
+    shashlik.block = -1;
+    shashlik.rot = 0;
+  }
+
+  let block = document.createElement('div');
+  block.className = 'player-shashlik ' + player.elem.className.split(' ')[1];
   let rot = player.elem.className.split(' ')[1] == 'look-left' ? -1 : 1;
 
-  shashlik.style.left =
+  block.style.left =
     player.elem.offsetLeft + rot * player.elem.clientWidth + 'px';
-  shashlik.style.top = '750px';
-  shashlik_obj.shashlik = shashlik;
-  shashlik_obj.rot = rot;
-  game.appendChild(shashlik);
+  block.style.top = '750px';
 
-/*  shashlikCooldown = true;
+  shashlik.block = block;
+  shashlik.rot = rot;
+  shashlik.slength = mobs.length;
+
+  game.appendChild(shashlik.block);
+
+  shashlikCooldown = true;
   setTimeout(() => {
     shashlikCooldown = false;
-  }, 3000);*/
+  }, 3000);
 }
-let pMob = 0;
-let frame = 0;
+
 function ShaslikUpdate() {
-  let shashlik = shashlik_obj.shashlik;
-  let rot = shashlik_obj.rot;
-  if (typeof shashlik === 'undefined') {
+  if (shashlik.block == -1 || shashlik.rot == 0) {
     return;
   }
-  if (
-    shashlik.offsetLeft >= screen.width ||
-    shashlik.offsetLeft < 0 - shashlik.clientWidth
-  ) {
-    shashlik_obj.shashlik.remove();
-    shashlik_obj.shashlik = undefined;
-    return;
-  }
-  let mobIdx = frame % mobs.length;
-  let mob = mobs[mobIdx];
-  if (!mob) {
-    return;
-  }
-  shashlik.style.left = shashlik.offsetLeft + rot * 20 + 'px';
-  // mobs.forEach(mob => {
-    if (mob == pMob) {
-      return;
-    }
-    if (
-      rot > 0 &&
-      shashlik.offsetLeft > mob.elem.offsetLeft + mob.elem.clientWidth
-    ) {
-      mob.hp -= 40;
-      pMob = mob;
-    } else if (
-      rot < 0 &&
-      shashlik.offsetLeft < mob.elem.offsetLeft
-    ) {
-      mob.hp -= 40;
-      pMob = mob;
+  shashlik.block.style.left = shashlik.block.offsetLeft + (shashlik.rot*10) + 'px';
+
+  if(shashlik.block.offsetLeft > screen.width||
+    shashlik.block.offsetLeft < 0 - shashlik.block.clientWidth){
+      shashlik.block.remove();
+      shashlik.block = -1;
+      shashlik.rot = 0;
     }
 
-  mobs[mobIdx] = mob;
-  // });
-  frame++
+    mobs.forEach((mob,idx)=>{
+      if (mob.hitted) {
+         return;
+      }
+
+      if (idx > shashlik.slength - 1) {
+        return;
+      }
+
+      if (shashlik.block.offsetLeft + shashlik.block.clientWidth > mob.elem.offsetLeft && shashlik.rot > 0) {
+        mob.hitted = true;
+        mob.hp -= 40;
+        // console.log('hit',mob);
+        
+      }
+      // console.log(shashlik);
+      
+      if (shashlik.block.offsetLeft < mob.elem.offsetLeft && shashlik.rot < 0) {
+        mob.hitted = true;
+        mob.hp -= 40;
+        // console.log(mob,'hit');
+        
+      }
+    })
 }
 
 function Die(player) {
